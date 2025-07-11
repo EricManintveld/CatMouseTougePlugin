@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36203.30 d17.14
+VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssettoServer", "AssettoServer\AssettoServer.csproj", "{7FDA59D8-BF5B-4B50-8F61-37611D087D24}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssettoServer.Tests", "AssettoServer.Tests\AssettoServer.Tests.csproj", "{DA97DFBB-EA56-468C-BEDE-7CBEB360DD0E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TougePlugin", "TougePlugin\TougePlugin.csproj", "{516788C4-1B1E-60D3-1B96-FF737431795C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastTravelPlugin", "FastTravelPlugin\FastTravelPlugin.csproj", "{5F72AEE1-39D5-486C-A701-82DED4FFFB82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,10 @@ Global
 		{516788C4-1B1E-60D3-1B96-FF737431795C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{516788C4-1B1E-60D3-1B96-FF737431795C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{516788C4-1B1E-60D3-1B96-FF737431795C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F72AEE1-39D5-486C-A701-82DED4FFFB82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F72AEE1-39D5-486C-A701-82DED4FFFB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F72AEE1-39D5-486C-A701-82DED4FFFB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F72AEE1-39D5-486C-A701-82DED4FFFB82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

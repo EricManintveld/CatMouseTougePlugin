@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using AssettoServer.Server;
-using AssettoServer.Shared.Network.Packets.Shared;
 using Serilog;
+using AssettoServer.Shared.Network.Packets.Shared;
 
 namespace RaceChallengePlugin;
 

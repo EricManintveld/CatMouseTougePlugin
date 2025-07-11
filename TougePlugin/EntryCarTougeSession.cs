@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 using AssettoServer.Network.Tcp;
 using AssettoServer.Server;
+using TougePlugin.Models;
 using TougePlugin.Packets;
-using AssettoServer.Shared.Network.Packets.Shared;
+using TougePlugin.TougeRulesets;
 
 
 namespace TougePlugin;
@@ -15,16 +16,20 @@ public class EntryCarTougeSession
     private readonly Touge _plugin;
     private readonly EntryCar _entryCar;
     private readonly TougeSession.Factory _tougeSessionFactory;
+    private readonly Func<RulesetType, ITougeRuleset> _rulesetFactory;
+    private readonly TougeConfiguration _configuration;
 
     internal TougeSession? CurrentSession { get; set; }
 
-    public EntryCarTougeSession(EntryCar entryCar, EntryCarManager entryCarManager, Touge plugin, TougeSession.Factory tougeSessionFactory)
+    public EntryCarTougeSession(EntryCar entryCar, EntryCarManager entryCarManager, Touge plugin, TougeSession.Factory tougeSessionFactory, Func<RulesetType, ITougeRuleset> rulesetFactory, TougeConfiguration configuration)
     {
         _entryCar = entryCar;
         _entryCarManager = entryCarManager;
         _plugin = plugin;
         _tougeSessionFactory = tougeSessionFactory;
+        _rulesetFactory = rulesetFactory;
         _entryCar.ResetInvoked += OnResetInvoked;
+        _configuration = configuration;
     }
 
     private void OnResetInvoked(EntryCar sender, EventArgs args)
@@ -58,7 +63,6 @@ public class EntryCarTougeSession
                 }
             }
         }
-
         return bestMatch;
     }
 
@@ -83,7 +87,7 @@ public class EntryCarTougeSession
     // Updates CurrentSession for both cars if invite is succesfully sent.
     // If session isn't active after 10 seconds, it withdraws the invite.
     // In this case it sets the CurrentSession back to null for both cars.
-    internal void ChallengeCar(EntryCar car)
+    internal async Task ChallengeCar(EntryCar car, string courseName, bool isCourse = true)
     {
         void Reply(string message)
         {
@@ -114,14 +118,20 @@ public class EntryCarTougeSession
                 }
                 else
                 {
+                    // Get rules and course.
+                    var ruleset = _rulesetFactory(_configuration.RuleSetType);
+                    Course course = _plugin.tougeCourses[courseName];
+                    RaceType raceType = isCourse ? RaceType.Course : RaceType.Outrun;
+
                     // Create a new TougeSession instance and set this for both cars.
-                    currentSession = _tougeSessionFactory(_entryCar, car);
+                    currentSession = _tougeSessionFactory(_entryCar, car, ruleset, course, raceType);
                     CurrentSession = currentSession;
                     _plugin.GetSession(car).CurrentSession = currentSession;
 
-                    // Send messages to both players
-                    _entryCar.Client?.SendPacket(new ChatMessage { SessionId = 255, Message = $"You have challenged {car.Client?.Name} to a touge session." });
-                    car.Client?.SendPacket(new InvitePacket { InviteSenderName = _entryCar.Client!.Name! });
+                    // Get sender's elo
+                    var (senderElo, _) = await _plugin.database.GetPlayerStatsAsync(_entryCar.Client!.Guid!.ToString());
+
+                    car.Client?.SendPacket(new InvitePacket { InviteSenderName = _entryCar.Client!.Name!, InviteSenderElo = senderElo, InviteSenderId = _entryCar.Client!.Guid.ToString(), CourseName = courseName });
 
                     _ = Task.Delay(10000).ContinueWith(_ =>
                     {
@@ -130,9 +140,8 @@ public class EntryCarTougeSession
                             CurrentSession = null;
                             _plugin.GetSession(car).CurrentSession = null;
 
-                            var timeoutMessage = "Touge session request has timed out.";
-                            _entryCar.Client?.SendPacket(new ChatMessage { SessionId = 255, Message = timeoutMessage });
-                            car.Client?.SendPacket(new ChatMessage { SessionId = 255, Message = timeoutMessage });
+                            var timeoutMessage = "Invite was not accepted in time.";
+                            Touge.SendNotification(_entryCar.Client, timeoutMessage);
                         }
                     });
                 }
